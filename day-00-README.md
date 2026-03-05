@@ -1,12 +1,10 @@
 # Day 0 — Planning & Architecture
 
-**SY0-701 Domain:** General Concepts (1.0)
-
 ---
 
 ## Objective
 
-Plan the full homelab architecture before touching any hardware. Document everything, set up the repo, and publish the first LinkedIn post.
+Plan the full homelab architecture before touching any hardware. Document everything and set up the repo.
 
 ## What I Did
 
@@ -18,7 +16,7 @@ Plan the full homelab architecture before touching any hardware. Document everyt
 
 ## Architecture
 
-The lab runs on a single Proxmox hypervisor (EliteDesk), managed headless from a MacBook M1 with dual monitors. All VMs sit behind a pfSense firewall that routes between five network segments:
+The lab runs on a single Proxmox hypervisor (EliteDesk). All VMs sit behind a pfSense firewall that routes between five network segments:
 
 | Segment | Bridge | Subnet | Purpose |
 |---------|--------|--------|---------|
