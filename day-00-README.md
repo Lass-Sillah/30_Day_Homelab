@@ -26,8 +26,6 @@ The lab runs on a single Proxmox hypervisor (EliteDesk). All VMs sit behind a pf
 | Attack | vmbr4 | 10.0.4.0/24 | Kali Linux (controlled access) |
 | DMZ | vmbr5 | 10.0.5.0/24 | Honeypot |
 
-Full architecture diagram: [homelab-architecture.svg](../../diagrams/homelab-architecture.svg)
-
 ## Key Decisions
 
 - **pfSense first**: The firewall goes up before any endpoints so every VM is segmented from day one.
@@ -43,7 +41,3 @@ Full architecture diagram: [homelab-architecture.svg](../../diagrams/homelab-arc
 - Ubuntu Server 22.04/24.04
 - Kali Linux
 - VirtIO drivers
-
-## Next
-
-Day 1 — Proxmox Installation & Config. Wiping the EliteDesk and installing Proxmox VE bare metal.
