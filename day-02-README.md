@@ -1,82 +1,63 @@
-Day 2 — pfSense Firewall & Network Segmentation
+# Day 2 — pfSense Firewall & Network Segmentation
 
-Day 2 focused on building the core network infrastructure of the homelab using pfSense as the primary firewall and router.
+---
 
-This step establishes the segmented network architecture that all future systems will rely on.
+## Objective
 
-pfSense Deployment
+Deploy pfSense as the first VM on the network. Establish segmented network architecture that all future systems will rely on.
 
-pfSense was deployed as a virtual machine inside Proxmox with the following configuration:
+## What I Did
 
-CPU: 2 cores
-Memory: 1 GB
-Disk: 8 GB
-Network Interfaces: 5 VirtIO adapters
+### pfSense Deployment
 
-Each interface was mapped to a Proxmox bridge to create isolated network segments.
+Deployed pfSense CE as a virtual machine inside Proxmox:
 
-Network Segmentation
+- CPU: 2 cores
+- Memory: 1 GB
+- Disk: 8 GB
+- Network Interfaces: 5 VirtIO adapters (one per segment)
+- Installed via Netgate online installer — the standalone ISO is no longer available from pfSense.org, so the installer fetches packages over the network during setup
 
-The lab network is divided into four internal segments plus WAN:
+### Network Segmentation
 
-Network	Subnet	Purpose
-WAN	192.168.1.0/24	Internet / home network
-Management	10.0.1.0/24	Admin tools and SIEM
-Servers	10.0.2.0/24	Domain Controller and infrastructure
-Endpoints	10.0.3.0/24	Windows and Linux workstations
-Attack	10.0.4.0/24	Kali attacker machine
+The lab network is divided into four internal segments plus WAN. Each interface is mapped to a Proxmox bridge to create isolated zones:
 
-Each subnet is routed through pfSense and receives IP addresses through DHCP.
+| Network | Subnet | Gateway | Purpose |
+|---------|--------|---------|---------|
+| WAN | 192.168.1.0/24 | DHCP from router | Internet / home network |
+| Management | 10.0.1.0/24 | 10.0.1.1 | Admin tools and SIEM |
+| Servers | 10.0.2.0/24 | 10.0.2.1 | Domain Controller and infrastructure |
+| Endpoints | 10.0.3.0/24 | 10.0.3.1 | Windows and Linux workstations |
+| Attack | 10.0.4.0/24 | 10.0.4.1 | Kali attacker machine |
 
-DHCP Configuration
+### DHCP Configuration
 
 Each internal network has its own DHCP range:
 
-Management: 10.0.1.100 – 10.0.1.200
-Servers: 10.0.2.100 – 10.0.2.200
-Endpoints: 10.0.3.100 – 10.0.3.200
-Attack: 10.0.4.100 – 10.0.4.200
+| Segment | Range |
+|---------|-------|
+| Management | 10.0.1.100 – 10.0.1.200 |
+| Servers | 10.0.2.100 – 10.0.2.200 |
+| Endpoints | 10.0.3.100 – 10.0.3.200 |
+| Attack | 10.0.4.100 – 10.0.4.200 |
 
-Firewall Rules
+### Firewall Rules
 
-Firewall rules were created to simulate enterprise-style segmentation.
+Firewall rules enforce enterprise-style segmentation. Key rule: the Attack network (10.0.4.0/24) can reach Servers and Endpoints but is blocked from reaching Management (10.0.1.0/24). Attackers should never have direct access to administrative infrastructure.
 
-Key rule implemented:
+A WAN rule allows secure HTTPS management of pfSense from the MacBook (port 443).
 
-Attack Network (10.0.4.0/24)
-→ Allowed to reach Servers and Endpoints
-→ Blocked from reaching Management network (10.0.1.0/24)
+### DNS
 
-This prevents attackers from directly accessing administrative infrastructure.
+pfSense DNS Resolver enabled across all lab networks for internal DNS resolution.
 
-DNS Configuration
+## Key Takeaways
 
-pfSense DNS Resolver was enabled to provide internal DNS resolution across all lab networks.
+- The pfSense ISO download process has changed significantly — the standalone ISO from pfsense.org turned out to be a zip archive disguised as an ISO. The Netgate online installer is now the official method.
+- Accessing the pfSense web UI required temporarily bridging the LAN interface to vmbr0 (the home network) since internal bridges have no physical NIC. After configuration, the interface was moved back to its proper segment.
+- VirtIO network adapters work natively with pfSense — no driver issues unlike Windows VMs.
 
-Management Access
 
-A WAN firewall rule allows secure HTTPS management of pfSense from the host network.
+## Next
 
-Source: MacBook IP
-Destination: This Firewall
-Port: 443 (HTTPS)
-
-Outcome
-
-At the end of Day 2 the lab has:
-
-• A functioning firewall/router
-• Segmented internal networks
-• DHCP services for each segment
-• Firewall rules enforcing network boundaries
-• Internet connectivity for internal systems
-
-This architecture mirrors real-world enterprise network segmentation used in SOC environments.
-
-Next Steps
-
-Day 3 will introduce the first endpoint systems:
-
-• Windows 10 endpoint VM
-• Sysmon logging configuration
-• Initial log forwarding to SIEM
+Day 3 — Windows 10 Endpoint VM on the segmented network.
